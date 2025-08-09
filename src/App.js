@@ -1,4 +1,5 @@
 import "./App.css";
+import Mysnackbar from "./Mysnackbar.js";
 import {
   ButtonGroup,
   Button,
@@ -33,6 +34,9 @@ function App() {
   const [error, setError] = useState("");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [taskToDeleteIndex, setTaskToDeleteIndex] = useState(null);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarColor, setSnackbarColor] = useState("#333");
 
   useEffect(() => {
     const stored = localStorage.getItem("tasks");
@@ -127,6 +131,7 @@ function App() {
                       gap: "10px",
                     }}
                   >
+                    {/* Delete button */}
                     <button
                       onClick={() => {
                         setTaskToDeleteIndex(index);
@@ -145,11 +150,15 @@ function App() {
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
 
+                    {/* Toggle done button */}
                     <button
                       onClick={() => {
                         const updated = [...tasks];
                         updated[index].done = !updated[index].done;
                         setTasks(updated);
+                        setSnackbarMessage("تم ختم المهمة بنجاح");
+                        setSnackbarColor("green");
+                        setSnackbarOpen(true);
                       }}
                       style={{
                         backgroundColor: task.done ? "green" : "#fff",
@@ -165,13 +174,20 @@ function App() {
                       <FontAwesomeIcon icon={faCheck} />
                     </button>
 
+                    {/* Edit button */}
                     <button
                       onClick={() => {
-                        const newTitle = prompt("عنوان جديد:", tasks[index].title);
+                        const newTitle = prompt(
+                          "عنوان جديد:",
+                          tasks[index].title
+                        );
                         if (newTitle && newTitle.trim() !== "") {
                           const updated = [...tasks];
                           updated[index].title = newTitle.trim();
                           setTasks(updated);
+                          setSnackbarMessage("تم تعديل المهمة بنجاح");
+                          setSnackbarColor("#1976d2");
+                          setSnackbarOpen(true);
                         }
                       }}
                       style={{
@@ -190,6 +206,7 @@ function App() {
                 </div>
               ))}
           </div>
+
 
           <div
             className="input"
@@ -234,9 +251,15 @@ function App() {
                   setError("لا يمكن ترك العنوان فارغًا");
                   setTimeout(() => setError(""), 3000);
                 } else {
-                  setTasks([...tasks, { title: inputValue.trim(), done: false }]);
+                  setTasks([
+                    ...tasks,
+                    { title: inputValue.trim(), done: false },
+                  ]);
                   setInputValue("");
                   setError("");
+                  setSnackbarMessage("تمت إضافة المهمة بنجاح");
+                  setSnackbarColor("#1976d2");
+                  setSnackbarOpen(true);
                 }
               }}
             >
@@ -271,6 +294,9 @@ function App() {
             if (taskToDeleteIndex !== null) {
               const updated = tasks.filter((_, i) => i !== taskToDeleteIndex);
               setTasks(updated);
+              setSnackbarMessage("تم حذف المهمة بنجاح");
+              setSnackbarColor("red");
+              setSnackbarOpen(true);
             }
             setConfirmOpen(false);
             setTaskToDeleteIndex(null);
@@ -278,6 +304,13 @@ function App() {
           taskTitle={
             taskToDeleteIndex !== null ? tasks[taskToDeleteIndex].title : ""
           }
+        />
+
+        <Mysnackbar
+          open={snackbarOpen}
+          message={snackbarMessage}
+          color={snackbarColor}
+          onClose={() => setSnackbarOpen(false)}
         />
       </div>
     </ThemeProvider>
